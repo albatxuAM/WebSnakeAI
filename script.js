@@ -7,7 +7,8 @@ let CTX = dom_canvas.getContext("2d");
 const W = (dom_canvas.width = 400);
 const H = (dom_canvas.height = 400);
 
-let gameMode = "wrap";
+let gameMode = "userControlled";
+let wallMode = "wrap";
 
 let snake,
   food,
@@ -192,7 +193,7 @@ class Snake {
   }
   walls() {
     let { x, y } = this.pos;
-    if (gameMode === "wrap") {
+    if (wallMode === "wrap") {
       if (x + cellSize > W) {
         this.pos.x = 0;
       }
@@ -205,9 +206,8 @@ class Snake {
       if (x < 0) {
         this.pos.x = W - cellSize;
       }
-  	}
-    else if (gameMode === "block") {
-      // Sin atravesar paredes
+    }
+    else if (wallMode === "block") {
       if (x < 0 || x >= W || y < 0 || y >= H) {
         isGameOver = true;
       }
@@ -215,17 +215,40 @@ class Snake {
   }
   controlls() {
     let dir = this.size;
-    if (KEY.ArrowUp) {
-      this.dir = new helpers.Vec(0, -dir);
-    }
-    if (KEY.ArrowDown) {
-      this.dir = new helpers.Vec(0, dir);
-    }
-    if (KEY.ArrowLeft) {
-      this.dir = new helpers.Vec(-dir, 0);
-    }
-    if (KEY.ArrowRight) {
-      this.dir = new helpers.Vec(dir, 0);
+    if (gameMode === "userControlled") {
+      if (KEY.ArrowUp) {
+        this.dir = new helpers.Vec(0, -dir);
+      }
+      if (KEY.ArrowDown) {
+        this.dir = new helpers.Vec(0, dir);
+      }
+      if (KEY.ArrowLeft) {
+        this.dir = new helpers.Vec(-dir, 0);
+      }
+      if (KEY.ArrowRight) {
+        this.dir = new helpers.Vec(dir, 0);
+      }
+    } else if (gameMode === "aiControlled") {
+      // Movimiento IA: evita moverse en la dirección opuesta
+      let possibleMoves = [];
+      let dir = this.size;
+
+      // Verifica las direcciones válidas según la dirección actual
+      if (!(this.dir.x === 0 && this.dir.y === dir)) { // No está bajando
+        possibleMoves.push(new helpers.Vec(0, -dir)); // Arriba
+      }
+      if (!(this.dir.x === 0 && this.dir.y === -dir)) { // No está subiendo
+        possibleMoves.push(new helpers.Vec(0, dir)); // Abajo
+      }
+      if (!(this.dir.x === dir && this.dir.y === 0)) { // No está yendo a la derecha
+        possibleMoves.push(new helpers.Vec(-dir, 0)); // Izquierda
+      }
+      if (!(this.dir.x === -dir && this.dir.y === 0)) { // No está yendo a la izquierda
+        possibleMoves.push(new helpers.Vec(dir, 0)); // Derecha
+      }
+
+      // Elige una dirección aleatoria válida
+      this.dir = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
     }
   }
   selfCollision() {
@@ -395,7 +418,12 @@ function reset() {
 
 document.querySelector("#game-mode").addEventListener("change", (e) => {
   gameMode = e.target.value;
-  reset(); // Reiniciar el juego al cambiar el modo
+  reset();
+});
+
+document.querySelector("#wall-mode").addEventListener("change", (e) => {
+  wallMode = e.target.value;
+  reset();
 });
 
 initialize();

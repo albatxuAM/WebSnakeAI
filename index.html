@@ -13,9 +13,17 @@
 <body>
 <!-- partial:index.partial.html -->
 <div class="container noselect">
-  <div id="mode-selector"> 
+  <div id="mode-selector" class="custom-selector"> 
     <label for="game-mode">Modo de juego:</label> 
     <select id="game-mode">
+      <option value="userControlled">Control Manual</option>
+      <option value="aiControlled">Controlado por IA</option>
+    </select> 
+  </div>
+
+ <div id="wall-selector" class="custom-selector">  
+    <label for="wall-mode">Modo de colision paredes:</label> 
+    <select id="wall-mode">
       <option value="wrap">Atravesar paredes</option> 
       <option value="block">Sin atravesar paredes</option> 
     </select> 
