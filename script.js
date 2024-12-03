@@ -7,6 +7,8 @@ let CTX = dom_canvas.getContext("2d");
 const W = (dom_canvas.width = 400);
 const H = (dom_canvas.height = 400);
 
+let gameMode = "wrap";
+
 let snake,
   food,
   currentHue,
@@ -190,17 +192,25 @@ class Snake {
   }
   walls() {
     let { x, y } = this.pos;
-    if (x + cellSize > W) {
-      this.pos.x = 0;
-    }
-    if (y + cellSize > W) {
-      this.pos.y = 0;
-    }
-    if (y < 0) {
-      this.pos.y = H - cellSize;
-    }
-    if (x < 0) {
-      this.pos.x = W - cellSize;
+    if (gameMode === "wrap") {
+      if (x + cellSize > W) {
+        this.pos.x = 0;
+      }
+      if (y + cellSize > W) {
+        this.pos.y = 0;
+      }
+      if (y < 0) {
+        this.pos.y = H - cellSize;
+      }
+      if (x < 0) {
+        this.pos.x = W - cellSize;
+      }
+  	}
+    else if (gameMode === "block") {
+      // Sin atravesar paredes
+      if (x < 0 || x >= W || y < 0 || y >= H) {
+        isGameOver = true;
+      }
     }
   }
   controlls() {
@@ -382,5 +392,10 @@ function reset() {
   clearTimeout(requestID);
   loop();
 }
+
+document.querySelector("#game-mode").addEventListener("change", (e) => {
+  gameMode = e.target.value;
+  reset(); // Reiniciar el juego al cambiar el modo
+});
 
 initialize();

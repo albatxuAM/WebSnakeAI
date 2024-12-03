@@ -2,7 +2,7 @@
 <html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <title>CodePen - VANILLA JS SNAKE</title>
+  <title>JS SNAKE</title>
   <script defer src="https://pro.fontawesome.com/releases/v5.10.0/js/all.js"
         integrity="sha384-G/ZR3ntz68JZrH4pfPJyRbjW+c0+ojii5f+GYiYwldYU69A+Ejat6yIfLSxljXxD"
         crossorigin="anonymous"></script>
@@ -13,7 +13,14 @@
 <body>
 <!-- partial:index.partial.html -->
 <div class="container noselect">
-  <!-- </div> -->
+  <div id="mode-selector"> 
+    <label for="game-mode">Modo de juego:</label> 
+    <select id="game-mode">
+      <option value="wrap">Atravesar paredes</option> 
+      <option value="block">Sin atravesar paredes</option> 
+    </select> 
+  </div>
+
   <div class="wrapper">
     <button id="replay">
       <i class="fas fa-play"></i>
