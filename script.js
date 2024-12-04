@@ -461,16 +461,30 @@ class Food {
     CTX.shadowBlur = 0;
   }
   spawn() {
-    let randX = ~~(Math.random() * cells) * this.size;
-    let randY = ~~(Math.random() * cells) * this.size;
-    for (let path of snake.history) {
-      if (helpers.isCollision(new helpers.Vec(randX, randY), path)) {
-        return this.spawn();
+    let randX, randY;
+    let validPosition;
+
+    // Creamos un ciclo do...while que generará una posición válida
+    do {
+      randX = ~~(Math.random() * cells) * this.size;
+      randY = ~~(Math.random() * cells) * this.size;
+      
+      validPosition = true;  // Inicializamos como válido
+      
+      // Comprobamos si la posición generada colisiona con el cuerpo de la serpiente
+      for (let path of snake.history) {
+        if (helpers.isCollision(new helpers.Vec(randX, randY), path)) {
+          validPosition = false;  // Si hay colisión, lo marcamos como no válido
+          break;  // Salimos del ciclo para intentar una nueva posición
+        }
       }
-    }
+    } while (!validPosition);  // Continuamos si la posición no es válida
+
+    // Asignamos la nueva posición si no hubo colisión
     this.color = currentHue = `hsl(${helpers.randHue()}, 100%, 50%)`;
     this.pos = new helpers.Vec(randX, randY);
   }
+
 }
 
 class Particle {
