@@ -8,6 +8,7 @@ const W = (dom_canvas.width = 400);
 const H = (dom_canvas.height = 400);
 
 let gameMode = "userControlled";
+let aiMode = "random";
 let wallMode = "wrap";
 
 let snake,
@@ -174,6 +175,8 @@ class Snake {
     this.color = "white";
     this.history = [];
     this.total = 1;
+    // Estado inicial
+    this.state = "SEARCH_FOOD";
   }
   draw() {
     let { x, y } = this.pos;
@@ -229,26 +232,34 @@ class Snake {
         this.dir = new helpers.Vec(dir, 0);
       }
     } else if (gameMode === "aiControlled") {
-      // Movimiento IA: evita moverse en la dirección opuesta
-      let possibleMoves = [];
-      let dir = this.size;
+      if (aiMode === "random") {
+        // Movimiento aletorio IA: evita moverse en la dirección opuesta
+        let possibleMoves = [];
+        let dir = this.size;
 
-      // Verifica las direcciones válidas según la dirección actual
-      if (!(this.dir.x === 0 && this.dir.y === dir)) { // No está bajando
-        possibleMoves.push(new helpers.Vec(0, -dir)); // Arriba
-      }
-      if (!(this.dir.x === 0 && this.dir.y === -dir)) { // No está subiendo
-        possibleMoves.push(new helpers.Vec(0, dir)); // Abajo
-      }
-      if (!(this.dir.x === dir && this.dir.y === 0)) { // No está yendo a la derecha
-        possibleMoves.push(new helpers.Vec(-dir, 0)); // Izquierda
-      }
-      if (!(this.dir.x === -dir && this.dir.y === 0)) { // No está yendo a la izquierda
-        possibleMoves.push(new helpers.Vec(dir, 0)); // Derecha
-      }
+        // Verifica las direcciones válidas según la dirección actual
+        if (!(this.dir.x === 0 && this.dir.y === dir)) { // No está bajando
+          possibleMoves.push(new helpers.Vec(0, -dir)); // Arriba
+        }
+        if (!(this.dir.x === 0 && this.dir.y === -dir)) { // No está subiendo
+          possibleMoves.push(new helpers.Vec(0, dir)); // Abajo
+        }
+        if (!(this.dir.x === dir && this.dir.y === 0)) { // No está yendo a la derecha
+          possibleMoves.push(new helpers.Vec(-dir, 0)); // Izquierda
+        }
+        if (!(this.dir.x === -dir && this.dir.y === 0)) { // No está yendo a la izquierda
+          possibleMoves.push(new helpers.Vec(dir, 0)); // Derecha
+        }
 
-      // Elige una dirección aleatoria válida
-      this.dir = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        // Elige una dirección aleatoria válida
+        this.dir = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+
+      } else if (aiMode === "stateMachine") {
+         this.stateMachineMovement();
+      }
+      else if (aiMode === "neuralNetwork") {
+        this.neuralNetworkMovement();
+      }
     }
   }
   selfCollision() {
@@ -279,6 +290,155 @@ class Snake {
       this.total > 3 ? this.selfCollision() : null;
     }
   }
+  neuralNetworkMovement() {
+   
+  }
+   stateMachineMovement() {
+    console.log(`Estado actual: ${this.state}`);  // Log del estado actual
+
+    switch (this.state) {
+      case "SEARCH_FOOD":
+        console.log("Transición al estado: SEARCH_FOOD");
+        this.searchFood();
+        break;
+
+      case "AVOID_COLLISIONS":
+        console.log("Transición al estado: AVOID_COLLISIONS");
+        this.avoidCollisions();
+        break;
+
+      case "BLOCKED":
+        console.log("Transición al estado: BLOCKED");
+        this.blockedState();
+        break;
+      default:
+        console.log("Estado desconocido");
+    }
+  }
+
+  // Buscar comida: intenta moverse hacia la comida
+  searchFood() {
+      const dir = this.size;
+      console.log("Buscando comida...");
+
+      if (this.pos.x < food.pos.x) {
+          this.dir = new helpers.Vec(dir, 0); // Mover hacia la derecha
+          console.log("Moviendo hacia la derecha");
+      } else if (this.pos.x > food.pos.x) {
+          this.dir = new helpers.Vec(-dir, 0); // Mover hacia la izquierda
+          console.log("Moviendo hacia la izquierda");
+      } else if (this.pos.y < food.pos.y) {
+          this.dir = new helpers.Vec(0, dir); // Mover hacia abajo
+          console.log("Moviendo hacia abajo");
+      } else {
+          this.dir = new helpers.Vec(0, -dir); // Mover hacia arriba
+          console.log("Moviendo hacia arriba");
+      }
+
+      // Comprobamos si hay una posible colisión y cambiamos de estado
+      if (this.isBlocked()) {
+          console.log("Estado bloqueado, cambiando a AVOID_COLLISIONS");
+          this.state = "AVOID_COLLISIONS";
+      }
+  }
+
+  // Evitar colisiones: Cambia de dirección si la IA va a chocar
+  avoidCollisions() {
+      const dir = this.size;
+      console.log("Evitando colisiones...");
+
+      if (this.isCollisionAhead()) {
+          console.log("Colisión inminente detectada, evitando...");
+          // Si hay una colisión inminente, cambiamos de dirección
+          this.dir = this.getAvoidDirection();
+      } else {
+          // Si no hay colisiones, volvemos al estado de búsqueda de comida
+          console.log("No hay colisiones, cambiando al estado SEARCH_FOOD");
+          this.state = "SEARCH_FOOD";
+      }
+  }
+
+  // Si la IA está bloqueada (no puede moverse), toma una acción aleatoria
+ blockedState() {
+    const dir = this.size;
+    console.log("IA bloqueada, tomando acción aleatoria");
+
+    // Direcciones posibles para la IA
+    const possibleDirections = [
+        new helpers.Vec(dir, 0),   // Derecha
+        new helpers.Vec(-dir, 0),  // Izquierda
+        new helpers.Vec(0, dir),   // Abajo
+        new helpers.Vec(0, -dir)   // Arriba
+    ];
+
+    // Filtramos la dirección opuesta a la dirección actual
+    const filteredDirections = possibleDirections.filter(direction => {
+        return !(this.dir.x === -direction.x && this.dir.y === -direction.y);
+    });
+
+    // Elegimos una dirección aleatoria entre las direcciones filtradas
+    this.dir = filteredDirections[Math.floor(Math.random() * filteredDirections.length)];
+
+    // Cambiamos al estado de búsqueda de comida después de moverse
+    console.log("Moviendo aleatoriamente y regresando al estado SEARCH_FOOD");
+    this.state = "SEARCH_FOOD";
+}
+
+  // New method to check if the snake is blocked (facing an obstacle)
+  isBlocked() {
+    const futurePos = new helpers.Vec(this.pos.x + this.dir.x, this.pos.y + this.dir.y);
+    return this.isOutOfBounds(futurePos) || this.isSelfCollision(futurePos);
+  }
+
+  // Función que determina si hay una colisión inminente (con el borde o el cuerpo de la serpiente)
+  isCollisionAhead() {
+    const futurePos = new helpers.Vec(this.pos.x + this.dir.x, this.pos.y + this.dir.y);
+    // Verifica si la nueva posición está fuera de los límites o si colisiona con el cuerpo
+    if (this.isOutOfBounds(futurePos) || this.isSelfCollision(futurePos)) {
+      return true;
+    }
+    return false;
+  }
+
+  // Comprobar si la nueva posición está fuera de los límites de la pantalla
+  isOutOfBounds(pos) {
+    if (wallMode === "block") {
+      return pos.x < 0 || pos.x >= W || pos.y < 0 || pos.y >= H;
+    }
+    return false;
+  }
+
+  // Comprobar si la nueva posición colisiona con el cuerpo de la serpiente
+  isSelfCollision(pos) {
+    for (let i = 0; i < this.history.length; i++) {
+      if (helpers.isCollision(pos, this.history[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Obtener una dirección para evitar la colisión (en caso de que haya una)
+  getAvoidDirection() {
+    const dir = this.size;
+    // Direcciones posibles para evitar colisiones
+    const possibleDirections = [
+      new helpers.Vec(dir, 0),  // Mover hacia la derecha
+      new helpers.Vec(-dir, 0), // Mover hacia la izquierda
+      new helpers.Vec(0, dir),  // Mover hacia abajo
+      new helpers.Vec(0, -dir)  // Mover hacia arriba
+    ];
+
+    // Filtramos las direcciones que no causarían colisiones
+    return possibleDirections.find(direction => !this.isCollisionAheadWithDirection(direction));
+  }
+
+  // Verificar si una dirección dada causaría una colisión
+  isCollisionAheadWithDirection(direction) {
+    const futurePos = new helpers.Vec(this.pos.x + direction.x, this.pos.y + direction.y);
+    return this.isOutOfBounds(futurePos) || this.isSelfCollision(futurePos);
+  }
+
 }
 
 class Food {
@@ -418,12 +578,23 @@ function reset() {
 
 document.querySelector("#game-mode").addEventListener("change", (e) => {
   gameMode = e.target.value;
+  if (gameMode === "aiControlled") {
+    document.querySelector("#ai-selector").style.display = "block";
+  } else {
+    document.querySelector("#ai-selector").style.display = "none";
+  }
   reset();
+});
+
+document.querySelector("#ai-mode").addEventListener("change", (e) => {
+  aiMode = e.target.value;
+  reset(); // Reiniciamos el juego con el nuevo modo de IA
 });
 
 document.querySelector("#wall-mode").addEventListener("change", (e) => {
   wallMode = e.target.value;
   reset();
 });
+
 
 initialize();
