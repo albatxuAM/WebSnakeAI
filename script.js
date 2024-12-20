@@ -290,9 +290,6 @@ class Snake {
       this.total > 3 ? this.selfCollision() : null;
     }
   }
-  neuralNetworkMovement() {
-   
-  }
    stateMachineMovement() {
     console.log(`Estado actual: ${this.state}`);  // Log del estado actual
 
@@ -382,7 +379,7 @@ class Snake {
     // Cambiamos al estado de búsqueda de comida después de moverse
     console.log("Moviendo aleatoriamente y regresando al estado SEARCH_FOOD");
     this.state = "SEARCH_FOOD";
-}
+  }
 
   // New method to check if the snake is blocked (facing an obstacle)
   isBlocked() {
@@ -439,6 +436,76 @@ class Snake {
     return this.isOutOfBounds(futurePos) || this.isSelfCollision(futurePos);
   }
 
+  neuralNetworkMovement() {    
+      //  This function takes the game state, loads it into the neural network,
+      //  computes the output, and performs the output actions.
+
+      //get neural network inputs
+
+      
+        
+  }
+
+  getInputArr() {
+    /*
+    //snake pos
+    this.pos.x
+    this.pos.y
+
+    //food pos
+    this.food.pos.x
+    this.food.pos.y
+
+    //obstacles
+    //self positions
+    this.history[]
+
+    //walls 
+      // if (wallMode === "block")
+      x < 0 || 
+      x >= W || 
+      y < 0 || 
+      y >= H
+
+    //curr dir
+    this.dir.x
+    this.dir.x
+  */
+    var arr = [0,0,0,0,0,0]
+
+    arr[0] = this.pos.x
+    arr[1] = this.pos.y
+
+    arr[2] = this.food.pos.x
+    arr[3] = this.food.pos.y
+
+    for ( var i = 0; i < this.history.length; i++) {
+      if ( snake.x - snake.sizeX == snake.history[i].x || snake.x == 0) {
+        arr[0] = 1;
+      } 
+      if ( snake.x + snake.sizeX == snake.history[i].x || snake.x == board.width - snake.sizeX) {
+        arr[2] = 1;
+      } 
+      if ( snake.y - snake.sizeY == snake.history[i].y || snake.y == 0) {
+        arr[1] = 1;
+      }
+      if ( snake.y + snake.sizeY == snake.history[i].y || snake.y == board.height - snake.sizeY) {
+        arr[3] = 1;
+      }
+    }
+  /*   if ( snake.x > apple.x) {
+      arr[4] = -1
+    } else if ( snake.x < apple.x) {
+      arr[4] = 1
+    }
+    if ( snake.y > apple.y) {
+      arr[5] = -1;
+    } else if (snake.y < apple.y) {
+      arr[5] = 1;
+    } */
+    console.log(arr);
+    return arr;
+  }
 }
 
 class Food {
