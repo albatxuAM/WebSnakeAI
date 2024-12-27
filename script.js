@@ -11,6 +11,13 @@ let gameMode = "aiControlled"; // "userControlled";
 let aiMode =  "neuralNetwork"; //"random";
 let wallMode = "wrap";
 
+const directions = {
+  up: [0, -1],
+  down: [0, 1],
+  left: [-1, 0],
+  right: [1, 0],
+};
+
 let snake,
   food,
   currentHue,
@@ -192,7 +199,7 @@ class NeuralNetwork {
   }
 }
 
-const net = new NeuralNetwork(6, 10, 3); // Input: 6, Hidden: 10, Output: 3 (Up, Down, Right)
+const net = new NeuralNetwork(6, 10, 1); // Input: 6, Hidden: 10, Output: 1 (Dir: Up, Down, Right, Left)
 
 class Snake {
   constructor(i, type) {
@@ -322,11 +329,28 @@ class Snake {
   }
   neuralNetworkMovement() {
     const input = this.getInputArr();
-    const output = net.run(input);
-    const maxIndex = output.indexOf(Math.max(...output));
-    if (maxIndex === 0) snake.setDirection(directions.up);
-    else if (maxIndex === 1) snake.setDirection(directions.down);
-    else if (maxIndex === 2) snake.setDirection(directions.right);
+    const output = net.run(input); // La salida será un único valor.
+    //console.log("Net output:", output);
+
+    // Convertimos la salida a un entero (por ejemplo, usando Math.round)
+    const direction = Math.round(output);
+    //console.log("Direction:", direction);
+
+    const dir = this.size;
+    // Mapear la salida a direcciones
+    if (direction === 0) {
+      this.dir = new helpers.Vec(dir, 0); // Mover hacia la derecha
+      console.log("Moviendo hacia la derecha");
+    } else if (direction === 1) {
+        this.dir = new helpers.Vec(-dir, 0); // Mover hacia la izquierda
+        console.log("Moviendo hacia la izquierda");
+    } else if (direction === 2) {
+        this.dir = new helpers.Vec(0, dir); // Mover hacia abajo
+        console.log("Moviendo hacia abajo");
+    } else if (direction === 3) {
+        this.dir = new helpers.Vec(0, -dir); // Mover hacia arriba
+        console.log("Moviendo hacia arriba");
+    }
   }
 
   getInputArr() {
@@ -334,8 +358,8 @@ class Snake {
 
     // Relación de la comida con respecto a la cabeza
     const foodRel = [
-      food.pos[0] - head[0],
-      food.pos[1] - head[1],
+      food.pos.x- head.x,
+      food.pos.y - head.x,
     ];
 
     // Calcular peligro basado en posiciones adyacentes a la cabeza
@@ -352,39 +376,15 @@ class Snake {
       ({ x, y }) => x === head.x + 1 && y === head.y
     );
 
+    console.log("Head position:", head);
+    console.log("Food position:", food.pos);
+    console.log("Food relative position:", foodRel);
+    console.log("Danger positions:", { dangerUp, dangerDown, dangerLeft, dangerRight });
+
+
     // Devuelve el array de entradas
     return [foodRel[0], foodRel[1], dangerUp, dangerDown, dangerLeft, dangerRight];
   }
-
- neuralNetworkMovement_() {
-  //  This function takes the game state, loads it into the neural network,
-      //  computes the output, and performs the output actions.
-
-      //get neural network inputs
-  const dir = this.size;
-  
-  // Recolectar información sobre el estado actual
-  let inputData = [
-    this.pos.x / W,           // Posición X normalizada
-    this.pos.y / H,           // Posición Y normalizada
-    food.pos.x / W,           // Posición de la comida (X)
-    food.pos.y / H,           // Posición de la comida (Y)
-    (this.dir.x > 0) ? 1 : 0, // Dirección actual (Derecha)
-    (this.dir.y > 0) ? 1 : 0  // Dirección actual (Abajo)
-  ];
-  
-  // Usar la red neuronal para predecir la acción
-  let action = net.run(inputData);
-  debugger
-  // Decidir el movimiento según la salida de la red neuronal
-  if (action[0] < 0.33) {
-    this.dir = new helpers.Vec(0, -dir); // Mover hacia arriba
-  } else if (action[0] < 0.66) {
-    this.dir = new helpers.Vec(0, dir); // Mover hacia abajo
-  } else {
-    this.dir = new helpers.Vec(dir, 0); // Mover hacia la derecha
-  }
-}
 
    stateMachineMovement() {
     console.log(`Estado actual: ${this.state}`);  // Log del estado actual
@@ -530,67 +530,6 @@ class Snake {
   isCollisionAheadWithDirection(direction) {
     const futurePos = new helpers.Vec(this.pos.x + direction.x, this.pos.y + direction.y);
     return this.isOutOfBounds(futurePos) || this.isSelfCollision(futurePos);
-  }
-
-  getInputArr_() {
-    /*
-    //snake pos
-    this.pos.x
-    this.pos.y
-
-    //food pos
-    this.food.pos.x
-    this.food.pos.y
-
-    //obstacles
-    //self positions
-    this.history[]
-
-    //walls 
-      // if (wallMode === "block")
-      x < 0 || 
-      x >= W || 
-      y < 0 || 
-      y >= H
-
-    //curr dir
-    this.dir.x
-    this.dir.x
-  */
-    var arr = [0,0,0,0,0,0]
-
-    arr[0] = this.pos.x
-    arr[1] = this.pos.y
-
-    arr[2] = this.food.pos.x
-    arr[3] = this.food.pos.y
-
-    for ( var i = 0; i < this.history.length; i++) {
-      if ( snake.x - snake.sizeX == snake.history[i].x || snake.x == 0) {
-        arr[0] = 1;
-      } 
-      if ( snake.x + snake.sizeX == snake.history[i].x || snake.x == board.width - snake.sizeX) {
-        arr[2] = 1;
-      } 
-      if ( snake.y - snake.sizeY == snake.history[i].y || snake.y == 0) {
-        arr[1] = 1;
-      }
-      if ( snake.y + snake.sizeY == snake.history[i].y || snake.y == board.height - snake.sizeY) {
-        arr[3] = 1;
-      }
-    }
-  /*   if ( snake.x > apple.x) {
-      arr[4] = -1
-    } else if ( snake.x < apple.x) {
-      arr[4] = 1
-    }
-    if ( snake.y > apple.y) {
-      arr[5] = -1;
-    } else if (snake.y < apple.y) {
-      arr[5] = 1;
-    } */
-    console.log(arr);
-    return arr;
   }
 }
 
