@@ -7,8 +7,8 @@ let CTX = dom_canvas.getContext("2d");
 const W = (dom_canvas.width = 400);
 const H = (dom_canvas.height = 400);
 
-let gameMode = "userControlled";
-let aiMode = "random";
+let gameMode = "aiControlled"; // "userControlled";
+let aiMode =  "neuralNetwork"; //"random";
 let wallMode = "wrap";
 
 let snake,
@@ -164,6 +164,36 @@ let KEY = {
   }
 };
 
+// Neural Network setup
+class NeuralNetwork {
+  constructor(inputNodes, hiddenNodes, outputNodes) {
+    this.inputNodes = inputNodes;
+    this.hiddenNodes = hiddenNodes;
+    this.outputNodes = outputNodes;
+
+    this.weightsIH = new Array(hiddenNodes).fill(0).map(() => new Array(inputNodes).fill(0).map(() => Math.random() * 2 - 1));
+    this.weightsHO = new Array(outputNodes).fill(0).map(() => new Array(hiddenNodes).fill(0).map(() => Math.random() * 2 - 1));
+  }
+
+  sigmoid(x) {
+    return 1 / (1 + Math.exp(-x));
+  }
+
+  run(inputs) {
+    const hidden = this.weightsIH.map(row =>
+      this.sigmoid(row.reduce((sum, weight, i) => sum + weight * inputs[i], 0))
+    );
+
+    const output = this.weightsHO.map(row =>
+      this.sigmoid(row.reduce((sum, weight, i) => sum + weight * hidden[i], 0))
+    );
+
+    return output;
+  }
+}
+
+const net = new NeuralNetwork(6, 10, 3); // Input: 6, Hidden: 10, Output: 3 (Up, Down, Right)
+
 class Snake {
   constructor(i, type) {
     this.pos = new helpers.Vec(W / 2, H / 2);
@@ -290,6 +320,72 @@ class Snake {
       this.total > 3 ? this.selfCollision() : null;
     }
   }
+  neuralNetworkMovement() {
+    const input = this.getInputArr();
+    const output = net.run(input);
+    const maxIndex = output.indexOf(Math.max(...output));
+    if (maxIndex === 0) snake.setDirection(directions.up);
+    else if (maxIndex === 1) snake.setDirection(directions.down);
+    else if (maxIndex === 2) snake.setDirection(directions.right);
+  }
+
+  getInputArr() {
+    const head = this.pos;
+
+    // Relación de la comida con respecto a la cabeza
+    const foodRel = [
+      food.pos[0] - head[0],
+      food.pos[1] - head[1],
+    ];
+
+    // Calcular peligro basado en posiciones adyacentes a la cabeza
+    const dangerUp = this.history.some(
+      ({ x, y }) => x === head.x && y === head.y - 1
+    );
+    const dangerDown = this.history.some(
+      ({ x, y }) => x === head.x && y === head.y + 1
+    );
+    const dangerLeft = this.history.some(
+      ({ x, y }) => x === head.x - 1 && y === head.y
+    );
+    const dangerRight = this.history.some(
+      ({ x, y }) => x === head.x + 1 && y === head.y
+    );
+
+    // Devuelve el array de entradas
+    return [foodRel[0], foodRel[1], dangerUp, dangerDown, dangerLeft, dangerRight];
+  }
+
+ neuralNetworkMovement_() {
+  //  This function takes the game state, loads it into the neural network,
+      //  computes the output, and performs the output actions.
+
+      //get neural network inputs
+  const dir = this.size;
+  
+  // Recolectar información sobre el estado actual
+  let inputData = [
+    this.pos.x / W,           // Posición X normalizada
+    this.pos.y / H,           // Posición Y normalizada
+    food.pos.x / W,           // Posición de la comida (X)
+    food.pos.y / H,           // Posición de la comida (Y)
+    (this.dir.x > 0) ? 1 : 0, // Dirección actual (Derecha)
+    (this.dir.y > 0) ? 1 : 0  // Dirección actual (Abajo)
+  ];
+  
+  // Usar la red neuronal para predecir la acción
+  let action = net.run(inputData);
+  debugger
+  // Decidir el movimiento según la salida de la red neuronal
+  if (action[0] < 0.33) {
+    this.dir = new helpers.Vec(0, -dir); // Mover hacia arriba
+  } else if (action[0] < 0.66) {
+    this.dir = new helpers.Vec(0, dir); // Mover hacia abajo
+  } else {
+    this.dir = new helpers.Vec(dir, 0); // Mover hacia la derecha
+  }
+}
+
    stateMachineMovement() {
     console.log(`Estado actual: ${this.state}`);  // Log del estado actual
 
@@ -436,17 +532,7 @@ class Snake {
     return this.isOutOfBounds(futurePos) || this.isSelfCollision(futurePos);
   }
 
-  neuralNetworkMovement() {    
-      //  This function takes the game state, loads it into the neural network,
-      //  computes the output, and performs the output actions.
-
-      //get neural network inputs
-
-      
-        
-  }
-
-  getInputArr() {
+  getInputArr_() {
     /*
     //snake pos
     this.pos.x
