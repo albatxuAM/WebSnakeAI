@@ -173,33 +173,102 @@ let KEY = {
 
 // Neural Network setup
 class NeuralNetwork {
-  constructor(inputNodes, hiddenNodes, outputNodes) {
-    this.inputNodes = inputNodes;
-    this.hiddenNodes = hiddenNodes;
-    this.outputNodes = outputNodes;
-
-    this.weightsIH = new Array(hiddenNodes).fill(0).map(() => new Array(inputNodes).fill(0).map(() => Math.random() * 2 - 1));
-    this.weightsHO = new Array(outputNodes).fill(0).map(() => new Array(hiddenNodes).fill(0).map(() => Math.random() * 2 - 1));
-  }
+  constructor(inputSize, hiddenSize, outputSize) {
+    this.inputSize = inputSize;
+    this.hiddenSize = hiddenSize;
+    this.outputSize = outputSize;
+    this.weightsInputToHidden = Array.from({ length: hiddenSize }, () =>
+        Array.from({ length: inputSize }, () => Math.random() * 2 - 1)
+    );
+    this.biasHidden = Array(hiddenSize).fill(0);
+    this.weightsHiddenToOutput = Array.from({ length: outputSize }, () =>
+        Array.from({ length: hiddenSize }, () => Math.random() * 2 - 1)
+    );
+    this.biasOutput = Array(outputSize).fill(0);
+    // this.learningRate = document.querySelector('#learningRate').value; // Adjusted learning rate
+    this.learningRate = 0.03;
+    
+    this.hiddenLayer = new Array(this.hiddenSize);
+}
 
   sigmoid(x) {
     return 1 / (1 + Math.exp(-x));
   }
 
+  train(inputs, target) {
+    for (let i = 0; i < this.hiddenSize; i++) {
+        this.hiddenLayer[i] = 0;
+        for (let j = 0; j < this.inputSize; j++) {
+            this.hiddenLayer[i] +=
+                this.weightsInputToHidden[i][j] * inputs[j];
+        }
+        this.hiddenLayer[i] += this.biasHidden[i];
+        this.hiddenLayer[i] = this.sigmoid(this.hiddenLayer[i]);
+    }
+
+    const output = new Array(this.outputSize);
+    for (let i = 0; i < this.outputSize; i++) {
+        output[i] = 0;
+        for (let j = 0; j < this.hiddenSize; j++) {
+            output[i] +=
+                this.weightsHiddenToOutput[i][j] * this.hiddenLayer[j];
+        }
+        output[i] += this.biasOutput[i];
+        output[i] = this.sigmoid(output[i]);
+    }
+
+    const errorsOutput = new Array(this.outputSize);
+    const errorsHidden = new Array(this.hiddenSize);
+
+    for (let i = 0; i < this.outputSize; i++) {
+        errorsOutput[i] = target[i] - output[i];
+        for (let j = 0; j < this.hiddenSize; j++) {
+            this.weightsHiddenToOutput[i][j] +=
+                this.learningRate *
+                errorsOutput[i] *
+                output[i] *
+                (1 - output[i]) *
+                this.hiddenLayer[j];
+        }
+        this.biasOutput[i] += this.learningRate * errorsOutput[i];
+    }
+
+    for (let i = 0; i < this.hiddenSize; i++) {
+        errorsHidden[i] = 0;
+        for (let j = 0; j < this.outputSize; j++) {
+            errorsHidden[i] +=
+                this.weightsHiddenToOutput[j][i] * errorsOutput[j];
+        }
+        this.biasHidden[i] += this.learningRate * errorsHidden[i];
+        for (let j = 0; j < this.inputSize; j++) {
+            this.weightsInputToHidden[i][j] +=
+                this.learningRate *
+                errorsHidden[i] *
+                this.hiddenLayer[i] *
+                (1 - this.hiddenLayer[i]) *
+                inputs[j];
+        }
+    }
+
+    return output;
+  }
+
   run(inputs) {
-    const hidden = this.weightsIH.map(row =>
-      this.sigmoid(row.reduce((sum, weight, i) => sum + weight * inputs[i], 0))
+    const hidden = this.weightsIH.map(row => {
+      console.log("hidden: " + row);
+      this.sigmoid(row.reduce((sum, weight, i) => sum + weight * inputs[i], 0)) }
     );
 
-    const output = this.weightsHO.map(row =>
-      this.sigmoid(row.reduce((sum, weight, i) => sum + weight * hidden[i], 0))
+    const output = this.weightsHO.map(row => {
+      console.log("output: " + row);
+      this.sigmoid(row.reduce((sum, weight, i) => sum + weight * hidden[i], 0)) }
     );
 
     return output;
   }
 }
 
-const net = new NeuralNetwork(6, 10, 1); // Input: 6, Hidden: 10, Output: 1 (Dir: Up, Down, Right, Left)
+const net = new NeuralNetwork(6, 1, 1); // Input: 6, Hidden: 10, Output: 1 (Dir: Up, Down, Right, Left)
 
 class Snake {
   constructor(i, type) {
@@ -268,6 +337,10 @@ class Snake {
       if (KEY.ArrowRight) {
         this.dir = new helpers.Vec(dir, 0);
       }
+
+      console.log(this.pos);
+      console.log(food.pos);
+      debugger
     } else if (gameMode === "aiControlled") {
       if (aiMode === "random") {
         // Movimiento aletorio IA: evita moverse en la dirección opuesta
@@ -329,8 +402,12 @@ class Snake {
   }
   neuralNetworkMovement() {
     const input = this.getInputArr();
-    const output = net.run(input); // La salida será un único valor.
-    //console.log("Net output:", output);
+
+    let foodRel = new helpers.Vec(food.pos.x- this.pos.x, food.pos.y - this.pos.x);
+    const output = net.train(input, foodRel); // La salida será un único valor.
+    console.log("Net output:", output);
+
+    debugger
 
     // Convertimos la salida a un entero (por ejemplo, usando Math.round)
     const direction = Math.round(output);
@@ -357,33 +434,46 @@ class Snake {
     const head = this.pos;
 
     // Relación de la comida con respecto a la cabeza
-    const foodRel = [
-      food.pos.x- head.x,
-      food.pos.y - head.x,
-    ];
+    let foodRel = new helpers.Vec(food.pos.x- head.x, food.pos.y - head.x);
 
     // Calcular peligro basado en posiciones adyacentes a la cabeza
-    const dangerUp = this.history.some(
+    let dangerUp = this.history.some(
       ({ x, y }) => x === head.x && y === head.y - 1
     );
-    const dangerDown = this.history.some(
+    let dangerDown = this.history.some(
       ({ x, y }) => x === head.x && y === head.y + 1
     );
-    const dangerLeft = this.history.some(
+    let dangerLeft = this.history.some(
       ({ x, y }) => x === head.x - 1 && y === head.y
     );
-    const dangerRight = this.history.some(
+    let dangerRight = this.history.some(
       ({ x, y }) => x === head.x + 1 && y === head.y
     );
+
+    let dir = this.size;
+    if ((this.dir.x === 0 && this.dir.y === dir)) { //está bajando
+      dangerUp = true;
+    }
+    if ((this.dir.x === 0 && this.dir.y === -dir)) { //está subiendo
+      dangerDown = true;
+    }
+    if ((this.dir.x === dir && this.dir.y === 0)) { //está yendo a la derecha
+      dangerLeft = true;
+    }
+    if ((this.dir.x === -dir && this.dir.y === 0)) { //está yendo a la izquierda
+      dangerRight = true;
+    }
 
     console.log("Head position:", head);
     console.log("Food position:", food.pos);
     console.log("Food relative position:", foodRel);
     console.log("Danger positions:", { dangerUp, dangerDown, dangerLeft, dangerRight });
 
-
     // Devuelve el array de entradas
-    return [foodRel[0], foodRel[1], dangerUp, dangerDown, dangerLeft, dangerRight];
+    return [head.x, head.y, dangerUp, dangerDown, dangerLeft, dangerRight];
+    return [head[0], head[1], foodRel[0], foodRel[1],  dangerUp, dangerDown, dangerLeft, dangerRight];
+    return [head, foodRel, dangerUp, dangerDown, dangerLeft, dangerRight];
+
   }
 
    stateMachineMovement() {
@@ -694,7 +784,7 @@ document.querySelector("#game-mode").addEventListener("change", (e) => {
 
 document.querySelector("#ai-mode").addEventListener("change", (e) => {
   aiMode = e.target.value;
-  reset(); // Reiniciamos el juego con el nuevo modo de IA
+  reset();
 });
 
 document.querySelector("#wall-mode").addEventListener("change", (e) => {
