@@ -1,8 +1,8 @@
 class Apple {
   constructor(snake, size) {
     this.size = size;
-    this.color = color(255, 0, 0);
-    this.color.setAlpha(100);
+    this.color = "rgba(255,0,0, 100)";
+    //this.color.setAlpha(100);
     this.random_loc(snake);
   }
 

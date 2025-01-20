@@ -4,7 +4,7 @@ class SnakeCell {
     this.row = row;
     this.size = size;
     this.color = color;
-    this.color.setAlpha(100);
+    //this.color.setAlpha(100);
   }
 
   draw() {

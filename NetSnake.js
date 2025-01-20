@@ -7,8 +7,6 @@ const BLOCK_SIZE = 20;
 let isIAGameStarted = false;
 
 function setup() {
-  if (isIAGameStarted) {
-    debugger
     canvas_width = 400;
     canvas_height = 400;
     adjustCanvasSize();
@@ -27,7 +25,6 @@ function setup() {
     let newCanvas = createCanvas(canvas_width, canvas_height);
     newCanvas.parent(document.querySelector("#canvas")); 
     frameRate(300);
-  }
 }
 
 function adjustCanvasSize() {
@@ -43,18 +40,17 @@ function adjustCanvasSize() {
 }
 
 function draw() {
-  if (isIAGameStarted) {
-    helpers.drawGrid();
-    //background(color(0, 0, 0));
+    //helpers.drawGrid();
+    background(color(0, 0, 0));
     geneticAlgorithm.draw();
     // Update the values directly by using the stored DOM elements
-    scoreElement.textContent = geneticAlgorithm.maxGame();
+    if (aiMode == "neuralNetwork") 
+      scoreElement.textContent = geneticAlgorithm.maxGame();
     maxScoreElement.textContent = geneticAlgorithm.maxGame();
     generationCountElement.textContent = geneticAlgorithm.generation_count;
     maxAllTimeElement.textContent = geneticAlgorithm.bestAllTime;
     populationCountElement.textContent = geneticAlgorithm.population.length;
     populationMaxElement.textContent = POPULATION_MAX;
-  }
 }
 
 function handle_keyboard() {

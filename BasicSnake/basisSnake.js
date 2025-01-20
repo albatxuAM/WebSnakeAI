@@ -1,7 +1,7 @@
 let dom_replay = document.querySelector("#replay");
 let dom_score = document.querySelector("#score");
 let dom_canvas = document.createElement("canvas");
-document.querySelector("#canvas").appendChild(dom_canvas);
+document.querySelector("#canvasBasicSnake").appendChild(dom_canvas);
 let CTX = dom_canvas.getContext("2d");
 
 const W = (dom_canvas.width = 400);
@@ -368,10 +368,6 @@ class SnakeBasic {
       if (KEY.ArrowRight) {
         this.dir = new helpers.Vec(dir, 0);
       }
-
-      console.log(this.pos);
-      console.log(food.pos);
-      debugger
     } else if (gameMode === "aiControlled") {
       if (aiMode === "random") {
         // Movimiento aletorio IA: evita moverse en la dirección opuesta
@@ -863,7 +859,7 @@ function loopBasicSnake() {
       helpers.garbageCollector();
     } else {
       clearBasicSnake();
-      gameOver();
+      gameOverBasicSnake();
     }
 }
 
@@ -902,7 +898,7 @@ function trainSnake() {
   nn.train(state, target);
 }
 
-function gameOver() {
+function gameOverBasicSnake() {
   maxScore ? null : (maxScore = score);
   score > maxScore ? (maxScore = score) : null;
   window.localStorage.setItem("maxScore", maxScore);
@@ -915,7 +911,7 @@ function gameOver() {
   CTX.fillText(`MAXSCORE   ${maxScore}`, W / 2, H / 2 + 80);
 }
 
-function reset() {
+function resetBasicSnake() {
   dom_score.innerText = "00";
   score = "00";
   snakeBasic = new SnakeBasic();

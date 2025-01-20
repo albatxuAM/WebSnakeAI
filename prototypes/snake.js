@@ -18,7 +18,7 @@ class Snake {
 
     this.score = 0;
     this.fitness_score = 0;
-    this.color = color(0, 255, 0);
+    this.color = "rgba(0,255,0, 100)";
     this.head = new SnakeCell(
       INIT_X / BLOCK_SIZE,
       INIT_Y / BLOCK_SIZE,
