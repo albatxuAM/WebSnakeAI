@@ -22,11 +22,14 @@ function initialize() {
 }
 
 function reset() {
-  resetBasicSnake();
+    resetBasicSnake();
+
+    if (aiMode === "neuralNetwork")
+        resetGame();
 }
 
 function resetIA() {
-  resetIASnake();
+    resetGame();
 }
 
 // Set up event listeners for each setting change
@@ -93,6 +96,14 @@ document.querySelector("#selection-mode").addEventListener("change", (e) => {
   resetIA();
 });
 
+// Añadimos un event listener al botón de "RESTART"
+document.querySelector("#replay").addEventListener("click", () => {
+    // Si estamos en modo de IA "neuralNetwork", también reiniciamos el juego de IA
+    if (aiMode === "neuralNetwork") {
+        resetGame();
+    }
+});
+
 // Initialize the UI when the page loads
 initialize();
 
@@ -103,3 +114,4 @@ function startIAGame() {
   isIAGameStarted = true;
   setup();
 }
+

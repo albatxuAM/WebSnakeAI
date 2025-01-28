@@ -58,16 +58,6 @@ function draw() {
     percentToKeepElement.textContent = parseInt(selectionMode);
 }
 
-function handle_keyboard() {
-  if (keyIsDown(LEFT_ARROW) && snake.direction != RIGHT) {
-    snake.moveLeft();
-  } else if (keyIsDown(RIGHT_ARROW) && snake.direction != LEFT) {
-    snake.moveRight();
-  } else if (keyIsDown(UP_ARROW) && snake.direction != DOWN) {
-    snake.moveUp();
-  } else if (keyIsDown(DOWN_ARROW) && snake.direction != UP) {
-    snake.moveDown();
-  } else {
-    snake.moveDefualt();
-  }
+function resetGame() {
+    geneticAlgorithm = new GeneticAlgorithm();  // Reinicia la instancia
 }

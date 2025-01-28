@@ -551,7 +551,7 @@ function initializeBasicSnake() {
   cellSize = W / cells;
   snakeBasic = new SnakeBasic();
   food = new Food();
-  dom_replay.addEventListener("click", reset, false);
+  //  dom_replay.addEventListener("click", resetBasicSnake, false);
   loopBasicSnake();
 
 }
