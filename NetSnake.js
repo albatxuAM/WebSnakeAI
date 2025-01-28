@@ -7,7 +7,7 @@ const BLOCK_SIZE = 20;
 let isIAGameStarted = false;
 
 let randomMode = "p5";         // "math"
-let selectionMode = "10"; 
+let selectionMode = "10";
 
 function setup() {
     canvas_width = 400;
@@ -23,24 +23,24 @@ function setup() {
     generationCountElement = document.querySelector("#generation-count");
     maxAllTimeElement = document.querySelector("#max-all-time");
     populationCountElement = document.querySelector("#population-count");
-    populationMaxElement = document.querySelector("#population-max"); 
-    percentToKeepElement = document.querySelector("#percentage-max"); 
+    populationMaxElement = document.querySelector("#population-max");
+    percentToKeepElement = document.querySelector("#percentage-max");
 
     let newCanvas = createCanvas(canvas_width, canvas_height);
-    newCanvas.parent(document.querySelector("#canvas")); 
+    newCanvas.parent(document.querySelector("#canvas"));
     frameRate(300);
 }
 
 function adjustCanvasSize() {
-  if (canvas_width % BLOCK_SIZE != 0) {
-    canvas_width =
-      Math.floor(canvas_width / BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE;
-  }
+    if (canvas_width % BLOCK_SIZE != 0) {
+        canvas_width =
+            Math.floor(canvas_width / BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE;
+    }
 
-  if (canvas_height % BLOCK_SIZE != 0) {
-    canvas_height =
-      Math.floor(canvas_height / BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE;
-  }
+    if (canvas_height % BLOCK_SIZE != 0) {
+        canvas_height =
+            Math.floor(canvas_height / BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE;
+    }
 }
 
 function draw() {
@@ -48,8 +48,8 @@ function draw() {
     background(color(0, 0, 0));
     geneticAlgorithm.draw();
     // Update the values directly by using the stored DOM elements
-    if (aiMode == "neuralNetwork") 
-      scoreElement.textContent = geneticAlgorithm.maxGame();
+    if (aiMode == "neuralNetwork")
+        scoreElement.textContent = geneticAlgorithm.maxGame();
     maxScoreElement.textContent = geneticAlgorithm.maxGame();
     generationCountElement.textContent = geneticAlgorithm.generation_count;
     maxAllTimeElement.textContent = geneticAlgorithm.bestAllTime;
