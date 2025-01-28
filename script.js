@@ -11,6 +11,8 @@ function initialize() {
 
   // Show or hide additional AI details based on the AI mode
   document.querySelector("#details").style.visibility = aiMode === "neuralNetwork" ? "visible" : "hidden";
+  document.querySelector("#random-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
+  document.querySelector("#wall-selector").style.display = aiMode != "neuralNetwork" ? "block" : "none";
 
   document.querySelector("#canvasBasicSnake").style.display = aiMode === "neuralNetwork" ? "none" : "block";
   document.querySelector("#canvas").style.display = aiMode === "neuralNetwork" ? "block" : "none";
@@ -27,6 +29,8 @@ document.querySelector("#game-mode").addEventListener("change", (e) => {
   // Update UI for AI selector visibility
   document.querySelector("#ai-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
   document.querySelector("#details").style.visibility = gameMode === "aiControlled" ? "visible" : "hidden";
+  document.querySelector("#random-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
+  document.querySelector("#wall-selector").style.display = gameMode != "aiControlled" ? "block" : "none";
   
   document.querySelector("#canvasBasicSnake").style.display = gameMode === "aiControlled" ? "none" : "block";
   document.querySelector("#canvas").style.display = gameMode === "aiControlled" ? "block" : "none";
@@ -40,6 +44,8 @@ document.querySelector("#game-mode").addEventListener("change", (e) => {
 document.querySelector("#ai-mode").addEventListener("change", (e) => {
   aiMode = e.target.value;
   document.querySelector("#details").style.visibility = aiMode === "neuralNetwork" ? "visible" : "hidden";
+  document.querySelector("#random-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
+  document.querySelector("#wall-selector").style.display = aiMode != "neuralNetwork" ? "block" : "none";
 
   document.querySelector("#canvasBasicSnake").style.display = aiMode === "neuralNetwork" ? "none" : "block";
   document.querySelector("#canvas").style.display = aiMode === "neuralNetwork" ? "block" : "none";
