@@ -7,9 +7,9 @@ let CTX = dom_canvas.getContext("2d");
 const W = (dom_canvas.width = 400);
 const H = (dom_canvas.height = 400);
 
-let gameMode = "aiControlled";  // "userControlled"
-let aiMode = "neuralNetwork";   // "random"
-let wallMode = "block";         // "wrap"
+let gameMode = "userControlled";    // aiControlled 
+let aiMode = "random";              // neuralNetwork
+let wallMode = "wrap";              // block 
 
 const directions = {
     up: [0, -1],

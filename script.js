@@ -37,9 +37,9 @@ document.querySelector("#game-mode").addEventListener("change", (e) => {
     gameMode = e.target.value;
     // Update UI for AI selector visibility
     document.querySelector("#ai-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
-    document.querySelector("#details").style.visibility = gameMode === "aiControlled" ? "visible" : "hidden";
-    //document.querySelector("#random-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
-    document.querySelector("#selection-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
+    document.querySelector("#details").style.visibility = aiMode === "neuralNetwork" ? "visible" : "hidden";
+    //document.querySelector("#random-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
+    document.querySelector("#selection-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
     document.querySelector("#wall-selector").style.display = gameMode != "aiControlled" ? "block" : "none";
 
     document.querySelector("#canvasBasicSnake").style.display = gameMode === "aiControlled" ? "none" : "block";
