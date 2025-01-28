@@ -4,6 +4,8 @@ function initialize() {
   document.querySelector("#game-mode").value = gameMode;
   document.querySelector("#ai-mode").value = aiMode;
   document.querySelector("#wall-mode").value = wallMode;
+  document.querySelector("#random-mode").value = randomMode;
+  document.querySelector("#selection-mode").value = selectionMode;
 
   // Show or hide AI options based on game mode
   document.querySelector("#ai-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
@@ -12,6 +14,7 @@ function initialize() {
   // Show or hide additional AI details based on the AI mode
   document.querySelector("#details").style.visibility = aiMode === "neuralNetwork" ? "visible" : "hidden";
   document.querySelector("#random-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
+  document.querySelector("#selection-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
   document.querySelector("#wall-selector").style.display = aiMode != "neuralNetwork" ? "block" : "none";
 
   document.querySelector("#canvasBasicSnake").style.display = aiMode === "neuralNetwork" ? "none" : "block";
@@ -19,8 +22,11 @@ function initialize() {
 }
 
 function reset() {
-  // This is just a placeholder for now
   resetBasicSnake();
+}
+
+function resetIA() {
+  resetIASnake();
 }
 
 // Set up event listeners for each setting change
@@ -30,6 +36,7 @@ document.querySelector("#game-mode").addEventListener("change", (e) => {
   document.querySelector("#ai-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
   document.querySelector("#details").style.visibility = gameMode === "aiControlled" ? "visible" : "hidden";
   document.querySelector("#random-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
+  document.querySelector("#selection-selector").style.display = gameMode === "aiControlled" ? "block" : "none";
   document.querySelector("#wall-selector").style.display = gameMode != "aiControlled" ? "block" : "none";
   
   document.querySelector("#canvasBasicSnake").style.display = gameMode === "aiControlled" ? "none" : "block";
@@ -45,6 +52,7 @@ document.querySelector("#ai-mode").addEventListener("change", (e) => {
   aiMode = e.target.value;
   document.querySelector("#details").style.visibility = aiMode === "neuralNetwork" ? "visible" : "hidden";
   document.querySelector("#random-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
+  document.querySelector("#selection-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
   document.querySelector("#wall-selector").style.display = aiMode != "neuralNetwork" ? "block" : "none";
 
   document.querySelector("#canvasBasicSnake").style.display = aiMode === "neuralNetwork" ? "none" : "block";
@@ -63,6 +71,26 @@ document.querySelector("#wall-mode").addEventListener("change", (e) => {
   e.target.blur();
   
   reset();
+});
+
+document.querySelector("#random-mode").addEventListener("change", (e) => {
+  randomMode = e.target.value;
+
+  // Eliminar el foco del select
+  e.target.blur();
+  
+  resetIA();
+});
+
+document.querySelector("#selection-mode").addEventListener("change", (e) => {
+  selectionMode = e.target.value;
+
+  PercentToKeep = parseInt(selectionMode) / 100;
+  
+  // Eliminar el foco del select
+  e.target.blur();
+  
+  resetIA();
 });
 
 // Initialize the UI when the page loads

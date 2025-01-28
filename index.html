@@ -39,12 +39,29 @@
   </div>
 
   <div id="random-selector" class="custom-selector">  
-    <label for="wall-mode">Random Mode:</label> 
-    <select id="wall-mode">
+    <label for="random-mode">Random Mode:</label> 
+    <select id="random-mode">
       <option value="math">Math random</option> 
       <option value="p5">p5 random</option> 
     </select> 
   </div>
+
+  <div id="selection-selector" class="custom-selector">  
+    <label for="selection-mode">Selection Mode:</label> 
+    <select id="selection-mode">
+      <option value="top">top 1</option> 
+      <option value="10">10%</option> 
+      <option value="20">20%</option> 
+      <option value="30">30%</option> 
+      <option value="40">40%</option> 
+      <option value="50">50%</option> 
+      <option value="60">60%</option> 
+      <option value="70">70%</option> 
+      <option value="80">80%</option> 
+      <option value="90">90%</option> 
+    </select> 
+  </div>
+
 
   <div class="wrapper">
     <button id="replay">
@@ -69,6 +86,8 @@
     <p>Maximum Score: <span id="max-all-time">0</span></p>
     <p>Population Count: <span id="population-count">0</span></p>
     <p>Population Max: <span id="population-max">0</span></p>
+    <br>
+    <p>Percent To Keep: <span id="percentage-max">0</span>%</p>
   </div>  
 </div>
 <!-- partial -->

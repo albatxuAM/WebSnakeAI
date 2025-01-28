@@ -10,7 +10,6 @@ const H = (dom_canvas.height = 400);
 let gameMode = "aiControlled";  // "userControlled"
 let aiMode = "neuralNetwork";   // "random"
 let wallMode = "block";         // "wrap"
-let randomMode = "p5";         // "math"
 
 const directions = {
   up: [0, -1],

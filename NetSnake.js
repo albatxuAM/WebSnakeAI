@@ -6,6 +6,9 @@ const BLOCK_SIZE = 20;
 
 let isIAGameStarted = false;
 
+let randomMode = "p5";         // "math"
+let selectionMode = "10"; 
+
 function setup() {
     canvas_width = 400;
     canvas_height = 400;
@@ -21,6 +24,7 @@ function setup() {
     maxAllTimeElement = document.querySelector("#max-all-time");
     populationCountElement = document.querySelector("#population-count");
     populationMaxElement = document.querySelector("#population-max"); 
+    percentToKeepElement = document.querySelector("#percentage-max"); 
 
     let newCanvas = createCanvas(canvas_width, canvas_height);
     newCanvas.parent(document.querySelector("#canvas")); 
@@ -51,6 +55,7 @@ function draw() {
     maxAllTimeElement.textContent = geneticAlgorithm.bestAllTime;
     populationCountElement.textContent = geneticAlgorithm.population.length;
     populationMaxElement.textContent = POPULATION_MAX;
+    percentToKeepElement.textContent = parseInt(selectionMode);
 }
 
 function handle_keyboard() {

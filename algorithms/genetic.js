@@ -1,4 +1,5 @@
 const POPULATION_MAX = 100;
+var PercentToKeep = 0.1;
 
 class GeneticAlgorithm {
   constructor() {
@@ -71,24 +72,54 @@ class GeneticAlgorithm {
 
   // Generating a new population for a genetic algorithm by cloning the fittest individual as the parent and disposing of the previous population.
   newGeneration() {
-    let newPop = [];
-    this.generation_count++;
+    if(selectionMode === "top") {
+      let newPop = [];
+      this.generation_count++;
 
-    let max_fitness = Math.max.apply(
-      Math,
-      this.save.map((game) => game.fitness)
-    );
-    let parent = this.save.find((game) => game.fitness == max_fitness);
+      let max_fitness = Math.max.apply(
+        Math,
+        this.save.map((game) => game.fitness)
+      );
+      let parent = this.save.find((game) => game.fitness == max_fitness);
 
-    for (let i = 0; i < POPULATION_MAX; i++) {
-      newPop.push(parent.copy());
+      for (let i = 0; i < POPULATION_MAX; i++) {
+        newPop.push(parent.copy());
+      }
+
+      for (let i = 0; i < POPULATION_MAX; i++) {
+        this.save[i].dispose();
+      }
+
+      this.population = newPop;
+      this.save = [];
     }
-
-    for (let i = 0; i < POPULATION_MAX; i++) {
-      this.save[i].dispose();
+    else {
+      let newPop = [];
+      this.generation_count++;
+  
+      // Ordenamos la población por la puntuación de fitness de mayor a menor
+      this.save.sort((a, b) => b.fitness - a.fitness);
+  
+      // Calculamos cuántos individuos representan el 10% de la población
+      let topPercentCount = Math.floor(this.save.length * PercentToKeep);
+  
+      // Seleccionamos los mejores individuos, el 10% superior
+      let topIndividuals = this.save.slice(0, topPercentCount);
+  
+      // Clonamos a estos mejores individuos para poblar la nueva población
+      for (let i = 0; i < POPULATION_MAX; i++) {
+          let parent = topIndividuals[Math.floor(Math.random() * topPercentCount)]; // Seleccionamos aleatoriamente un padre del top 10%
+          newPop.push(parent.copy());
+      }
+  
+      // Eliminamos los individuos de la generación anterior
+      for (let i = 0; i < POPULATION_MAX; i++) {
+          this.save[i].dispose();
+      }
+  
+      // Actualizamos la población
+      this.population = newPop;
+      this.save = [];
     }
-
-    this.population = newPop;
-    this.save = [];
   }
 }
