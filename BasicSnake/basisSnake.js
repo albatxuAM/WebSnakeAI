@@ -171,6 +171,53 @@ let KEY = {
     }
 };
 
+let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
+
+// Captura el inicio del toque
+dom_canvas.addEventListener("touchstart", (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}, false);
+
+// Captura el final del toque y calcula la dirección
+dom_canvas.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].clientX;
+    touchEndY = e.changedTouches[0].clientY;
+    handleSwipe();
+}, false);
+
+function handleSwipe() {
+    let dx = touchEndX - touchStartX;
+    let dy = touchEndY - touchStartY;
+
+    // Determinar si el deslizamiento es mayor en X o en Y
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && !KEY.ArrowLeft) {
+            KEY.ArrowRight = true;
+            KEY.ArrowLeft = false;
+            KEY.ArrowUp = false;
+            KEY.ArrowDown = false;
+        } else if (dx < 0 && !KEY.ArrowRight) {
+            KEY.ArrowLeft = true;
+            KEY.ArrowRight = false;
+            KEY.ArrowUp = false;
+            KEY.ArrowDown = false;
+        }
+    } else {
+        if (dy > 0 && !KEY.ArrowUp) {
+            KEY.ArrowDown = true;
+            KEY.ArrowUp = false;
+            KEY.ArrowLeft = false;
+            KEY.ArrowRight = false;
+        } else if (dy < 0 && !KEY.ArrowDown) {
+            KEY.ArrowUp = true;
+            KEY.ArrowDown = false;
+            KEY.ArrowLeft = false;
+            KEY.ArrowRight = false;
+        }
+    }
+}
+
 class SnakeBasic {
     constructor(i, type) {
         this.pos = new helpers.Vec(W / 2, H / 2);
