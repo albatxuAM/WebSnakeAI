@@ -174,13 +174,13 @@ let KEY = {
 let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
 
 // Captura el inicio del toque
-dom_canvas.addEventListener("touchstart", (e) => {
+document.body.addEventListener("touchstart", (e) => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
 }, false);
 
 // Captura el final del toque y calcula la dirección
-dom_canvas.addEventListener("touchend", (e) => {
+document.body.addEventListener("touchend", (e) => {
     touchEndX = e.changedTouches[0].clientX;
     touchEndY = e.changedTouches[0].clientY;
     handleSwipe();
