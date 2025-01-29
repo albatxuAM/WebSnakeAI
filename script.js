@@ -1,3 +1,5 @@
+var openedIA = false;
+
 // Initialize UI based on current settings
 function initialize() {
     // Set the values of the selectors based on the current settings
@@ -42,8 +44,8 @@ document.querySelector("#game-mode").addEventListener("change", (e) => {
     document.querySelector("#selection-selector").style.display = aiMode === "neuralNetwork" ? "block" : "none";
     document.querySelector("#wall-selector").style.display = gameMode != "aiControlled" ? "block" : "none";
 
-    document.querySelector("#canvasBasicSnake").style.display = gameMode === "aiControlled" ? "none" : "block";
-    document.querySelector("#canvas").style.display = gameMode === "aiControlled" ? "block" : "none";
+    document.querySelector("#canvasBasicSnake").style.display = aiMode === "neuralNetwork" ? "none" : "block";
+    document.querySelector("#canvas").style.display = aiMode === "neuralNetwork" ? "block" : "none";
 
     // Eliminar el foco del select
     e.target.blur();
@@ -65,7 +67,10 @@ document.querySelector("#ai-mode").addEventListener("change", (e) => {
     e.target.blur();
 
     if (aiMode === "neuralNetwork") {
-        //resetGame(); 
+        if (!openedIA) {
+            resetGame();
+            openedIA = true;
+        }
     } else {
         reset();
     }
